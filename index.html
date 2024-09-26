@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kwitansi</title>
+    <link rel="stylesheet" href="../kwitansiToanHwa/kwitansiToanHwa.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+       let isSaved = false;
+
+// Array of month names in Indonesian (move it to the global scope)
+const months = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+];
+
+// Function to format numbers with thousand separators
+function number_format(number) {
+    return new Intl.NumberFormat('id-ID').format(number);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const dateElement = document.getElementById('currentDate');
+    
+    // Get the current date
+    const currentDate = new Date();
+    
+    // Format the current date
+    const formattedDate = `${currentDate.getDate()} ${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+    
+    // Set the formatted date in the element for new kwitansi
+    dateElement.textContent = `Tanjungpinang, ${formattedDate}`;
+
+    fetchNewInvoiceNumber();
+    fetchKwitansiList();
+});
+
+function fetchNewInvoiceNumber() {
+    $.ajax({
+        url: 'get_invoice_number.php',
+        type: 'GET',
+        success: function(response) {
+            document.querySelector('.codeNumber').textContent = response;
+        }
+    });
+}
+
+function fetchKwitansiList() {
+    $.ajax({
+        url: 'get_kwitansi_list.php',
+        type: 'GET',
+        success: function(response) {
+            document.getElementById('kwitansiList').innerHTML = response;
+            addListClickHandlers();
+        }
+    });
+}
+
+function addListClickHandlers() {
+    document.querySelectorAll('.kwitansi-item-container').forEach(item => {
+        item.addEventListener('click', function() {
+            const invoiceNumber = this.dataset.invoiceNumber;
+            fetchKwitansiDetails(invoiceNumber);
+        });
+    });
+}
+
+function fetchKwitansiDetails(invoiceNumber) {
+    $.ajax({
+        url: 'get_kwitansi_details.php',
+        type: 'GET',
+        data: { invoice_number: invoiceNumber },
+        success: function(response) {
+            const data = JSON.parse(response);
+
+            // Format the invoice number
+            const formattedInvoiceNumber = str_pad(data.invoice_number, 5, '0', 'STR_PAD_LEFT');
+            document.querySelector('.codeNumber').textContent = formattedInvoiceNumber;
+
+            // Populate the form fields with the kwitansi data
+            document.querySelector('input[name="nama"]').value = data.nama;
+            document.querySelector('input[name="keterangan"]').value = data.keterangan;
+            document.querySelector('input[name="nominal"]').value = data.nominal;
+            document.querySelector('input[name="total"]').value = number_format(data.total);
+
+            // Format the date from the database (assuming it's in YYYY-MM-DD format)
+            const dateParts = data.tanggal.split('-');
+            const formattedDate = `${dateParts[2]} ${months[parseInt(dateParts[1]) - 1]} ${dateParts[0]}`;
+            document.getElementById('currentDate').textContent = `Tanjungpinang, ${formattedDate}`;
+
+            // Make the form fields read-only
+            document.querySelectorAll('input').forEach(input => input.setAttribute('readonly', true));
+            isSaved = true; // Set the flag to indicate the form is already saved
+        }
+    });
+}
+
+function validateForm() {
+    let isValid = true;
+    document.querySelectorAll('#kwitansiForm input').forEach(input => {
+        if (!input.value) {
+            isValid = false;
+        }
+    });
+    return isValid;
+}
+
+function submitForm(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    if (isSaved) {
+        alert('Kwitansi tersebut sudah disimpan sebelumnya');
+        return;
+    }
+
+    if (validateForm()) {
+        // Remove thousand separators before submitting the form
+        $('input[name="nominal"]').val($('input[name="nominal"]').val().replace(/\./g, ''));
+        $('input[name="total"]').val($('input[name="total"]').val().replace(/\./g, ''));
+
+        const formData = $('#kwitansiForm').serialize(); // Serialize form data
+
+        $.ajax({
+            type: 'POST',
+            url: 'create.php',
+            data: formData,
+            success: function(response) {
+                if (response === 'success') {
+                    alert('New record created successfully');
+                    fetchKwitansiList(); // Update the list of kwitansis
+                    isSaved = true; // Set the flag to indicate the form is saved
+                } else {
+                    alert('Failed to create record');
+                }
+            },
+            error: function() {
+                alert('Failed to create record');
+            }
+        });
+    } else {
+        alert('Please fill in all fields before saving.');
+    }
+}
+
+function downloadPDF() {
+    if (validateForm()) {
+        const { jsPDF } = window.jspdf;
+        const element = document.querySelector('#kwitansi');
+
+        html2canvas(element, {
+            scale: 5, // Increase scale for better quality
+            useCORS: true, // Enable CORS for external images
+            allowTaint: true // Allow tainted canvases
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = 297; // Landscape width in mm
+            const pageHeight = 210; // Landscape height in mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            const pdf = new jsPDF('landscape', 'mm', [imgWidth, imgHeight]); // Dynamically set the page height
+
+            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+            pdf.save('kwitansi.pdf');
+        });
+    } else {
+        alert('Please fill in all fields before downloading the PDF.');
+    }
+}
+
+function resetForm() {
+    $('#kwitansiForm')[0].reset(); // Reset the form fields
+    fetchNewInvoiceNumber(); // Fetch a new invoice number
+    document.querySelectorAll('input').forEach(input => input.removeAttribute('readonly'));
+    isSaved = false; // Reset the flag to indicate the form is not saved
+    
+    // Set the current date
+    const dateElement = document.getElementById('currentDate');
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.getDate()} ${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+    dateElement.textContent = `Tanjungpinang, ${formattedDate}`;
+}
+
+
+function str_pad(input, length, string, type) {
+    input = input.toString();
+    if (!string) { string = '0'; }
+    while (input.length < length) {
+        input = type === 'STR_PAD_LEFT' ? string + input : input + string;
+    }
+    return input;
+}
+
+    </script>
+</head>
+<body>
+    <div class="container" id="kwitansi">
+        <form id="kwitansiForm" onsubmit="submitForm(event)">
+            <div class="headerContainer">
+                <div class="leftTopContainer">
+                    <div class="logoContainer">
+                        <img src="assets/logoYayasanTH.png" class="logo" alt="Logo">
+                    </div>
+                    <div class="schoolNameContainer">
+                        <h4 class="schoolName">SEKOLAH TOAN HWA</h4>
+                        <h4 class="schoolName">TOAN HWA SCHOOL</h4>
+                        <h4 class="schoolNameMandarin">端华学校</h4>
+                    </div>
+                </div>
+                <div class="rightTopContainer">
+                    <h1 class="title">KWITANSI</h1>
+                    <div class="numberKwitansiContainer">
+                        <h2 class="codeNo">No. </h2>
+                        <h2 class="codeNumber">?</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="inputContainer">
+                <p class="inputDesc">兹收到 / Telah diterima dari
+                <p class="colon">:</p>
+                <input class="input" type="text" name="nama" placeholder="Nama" required>
+            </div>
+            <div class="inputContainer">
+                <p class="inputDesc">款项 / Uang sejumlah
+                <p class="colon">:</p>
+                </p>
+                <input class="input" type="text" name="nominal" placeholder="Nominal" required>
+            </div>
+            <div class="inputContainer">
+                <p class="inputDesc">支付 / Untuk pembayaran
+                <p class="colon">:</p>
+                </p>
+                <input class="input" type="text" name="keterangan" placeholder="Keterangan Pembayaran" required>
+            </div>
+            <div class="bottomContainer">
+                <div class="bottomLeftContainer">
+                    <div>
+                        <p class="bottomTextLeft">總共</p>
+                        <p class="bottomTextLeft">JUMLAH Rp.</p>
+                    </div>
+                    <div class="parallelogram">
+                        <input class="inputTotal" type="text" name="total" placeholder="Nominal" required>
+                    </div>
+                </div>
+                <div class="bottomRightContainer">
+                    <p id="currentDate" class="bottomTextRight">Tanjungpinang, </p>
+                        <p class="bottomTextRight">收款人 Yang Menerima,</p>
+                    </div>
+                </div>
+        </div>
+        <button type="button" class="saveButton" onclick="submitForm(event)">Save</button>
+        <button type="button" class="downloadButton" onclick="downloadPDF()">Download</button>
+        <button type="button" class="resetButton" onclick="resetForm()">Clear/New</button>
+        </form>
+        <div class="belowTitle">
+            List Kwitansi:
+        </div>
+    
+        <div id="kwitansiList" class="kwitansi-list">
+            <!-- List of kwitansis will be rendered here -->
+        </div>
+    </body>
+    </html>
+    

@@ -1,0 +1,280 @@
+.container {
+  background-color: #f2f2f2;
+  padding: 15px 40px;
+  /* border-color: black;
+  border-style: solid;
+  border-width: 1px; */
+  border: none;
+  width: 800px;
+}
+
+.title {
+  color: black;
+  font-size: 28px;
+  font-family: "Calibri", sans-serif;
+  text-decoration: underline;
+  font-weight: bold;
+  width: fit-content;
+  margin-left: auto;
+  margin: 0;
+}
+
+.numberKwitansiContainer {
+  gap: 15px;
+  color: black;
+  font-size: 16px;
+  font-family: "Calibri", sans-serif;
+  margin-left: auto;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+}
+
+.codeNo {
+  color: black;
+  font-size: 20px;
+  font-weight: 400;
+  font-family: "Calibri", sans-serif;
+  margin: 0;
+}
+.codeNumber {
+  color: red;
+  font-size: 24px;
+  font-family: "Nanum Myeongjo", sans-serif;
+  font-weight: 400;
+  margin: 0;
+}
+
+.schoolNameContainer {
+  color: black;
+  font-size: 14px;
+  font-family: "Cambria", sans-serif;
+  margin-left: auto;
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  text-align: center;
+}
+
+.schoolName {
+  margin: 0;
+}
+
+.schoolNameMandarin {
+  margin: 0;
+  font-family: "宋体", sans-serif;
+  font-size: 16px;
+  letter-spacing: 5px;
+}
+
+.logo {
+  margin-top: 5px;
+  width: 58px;
+  height: 50px;
+  margin-right: 5px;
+}
+
+.logoContainer {
+  width: fit-content;
+}
+
+.leftTopContainer {
+  display: flex;
+  align-items: center;
+}
+
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.rightTopContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputContainer {
+  color: black;
+  font-size: 14px;
+  font-family: "Times New Roman", "宋体", sans-serif;
+  display: flex;
+  font-weight: bold;
+  align-items: center;
+  flex-direction: row;
+}
+
+.input {
+  font-size: 14px;
+  font-family: "Times New Roman", sans-serif;
+  border: none;
+  border-bottom: 2px dotted black;
+  background-color: transparent;
+  width: 100%;
+  height: 25px;
+}
+
+.inputDesc {
+  width: 30%;
+  font-weight: 400;
+}
+
+.inputtextarea {
+  font-size: 14px;
+  font-family: "Times New Roman", sans-serif;
+  font-weight: bold;
+  border: none;
+  border-bottom: 2px dotted black;
+  background-color: transparent;
+  width: 100%;
+  resize: none;
+  height: 20px;
+}
+
+.colon {
+  padding-right: 5px;
+}
+
+.parallelogram {
+  width: 200px;
+  height: 50px;
+  /* transform: skew(-20deg); */
+  background: #adacac;
+  border-radius: 5px;
+}
+
+.bottomLeftContainer {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-top: 25px;
+}
+
+.inputTotal {
+  font-size: 20px;
+  font-family: "Times New Roman", sans-serif;
+  background-color: transparent;
+  border: none;
+  width: 90%;
+  margin-top: 12px;
+  margin-left: 5px;
+}
+
+::placeholder {
+  color: rgb(0, 0, 0);
+}
+
+.bottomTextLeft {
+  font-size: 16px;
+  font-family: "Times New Roman", sans-serif;
+  font-weight: bold;
+  margin: 5px 0px;
+}
+
+.bottomTextRight {
+  font-size: 14px;
+  font-family: "Times New Roman", sans-serif;
+  font-weight: 400;
+  margin: 0px;
+}
+
+.bottomRightContainer {
+  width: fit-content;
+  margin-left: auto;
+}
+
+.bottomContainer {
+  display: flex;
+  margin-top: 5px;
+  padding-bottom: 5px;
+}
+
+#downloadKwitansi {
+  background-color: rgb(39, 255, 79);
+  border-radius: 5px;
+  font-family: "Times New Roman", sans-serif;
+  margin-top: 20px;
+  padding: 10px;
+  border: none;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+#clearKwitansi {
+  background-color: rgb(247, 245, 122);
+  border-radius: 5px;
+  font-family: "Times New Roman", sans-serif;
+  margin-top: 20px;
+  padding: 10px;
+  border: none;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.saveButton {
+  margin-top: 10px;
+  background-color: rgb(39, 255, 79);
+  border-radius: 5px;
+  font-family: "Times New Roman", sans-serif;
+  padding: 10px;
+  border: none;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+.downloadButton {
+  margin-top: 10px;
+  background-color: rgb(255, 145, 72);
+  border-radius: 5px;
+  font-family: "Times New Roman", sans-serif;
+  padding: 10px;
+  border: none;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+.resetButton {
+  margin-top: 10px;
+  background-color: rgb(39, 172, 255);
+  border-radius: 5px;
+  font-family: "Times New Roman", sans-serif;
+  padding: 10px;
+  border: none;
+  font-size: 14px;
+}
+
+button:hover {
+  background-color: rgb(57, 218, 202);
+}
+
+.belowTitle {
+  margin-top: 30px;
+  margin-left: 5px;
+  font-size: 20px;
+  font-family: "Times New Roman", sans-serif;
+  font-weight: bold;
+}
+
+.kwitansi-list {
+  margin-top: 10px;
+  margin-left: 5px;
+}
+
+.kwitansi-item-container {
+  border: 1px solid #000000;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: fit-content;
+}
+
+.kwitansi-item-container:hover {
+  background-color: #fff898;
+}
+
+.kwitansi-item {
+  margin: 0;
+}
